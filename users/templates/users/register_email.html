@@ -1,0 +1,24 @@
+{% extends "onlinecourse/base.html" %}
+
+{% load static %}
+{% block content %}
+
+<div class="register-email-page">
+    <div class="register-email-inner">
+        <div class="register-email-title">
+            <img src="{% static 'images/registrtaion-logo1.jpg' %}" alt="registration" width="50" height="40">
+            <h2 style="color: #515151">Регистрация — шаг 1</h2>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="register-email-btn">Отправить код</button>
+        </form>
+    </div>
+</div>
+{% if messages %}
+{% for message in messages %}
+<div class="message {{ message.tags }}">{{ message }}</div>
+{% endfor %}
+{% endif %}
+{% endblock %}

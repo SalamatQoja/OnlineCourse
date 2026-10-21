@@ -1,0 +1,117 @@
+{% extends "users/admin_sidebar.html" %}
+{% block title %}Управление пользователями{% endblock %}
+
+{% load static %}
+{% block users_content %}
+
+<div class="messages-inform-side">
+    {% if messages %}
+    {% for message in messages %}
+    <div class="message {{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+</div>
+<div class="userlist-page">
+    <div class="userlist-page-inner">
+        <div class="userlist-title">
+            <h2 style="color: #656262"><img src="/static/images/users.png" class="userlist-logo"> Все пользователь
+            </h2>
+            <div class="userlist-search-row" style="margin-right: 25px">
+                <img src="/static/images/search-images13 .png" style="height: 20px"><input type="text"
+                                                                                           placeholder="найти...."
+                                                                                           class="userlist-search-input">
+            </div>
+        </div>
+        <table cellpadding="10" class="users-table">
+            <thead>
+            <tr>
+                <th></th>
+                <th>Логин</th>
+                <th>E-mail</th>
+                <th>Телефон номер</th>
+                <th>Роль</th>
+                <th>Дата регистрации</th>
+                <th>Статус</th>
+                <th>Действие</th>
+                <th>Изменить роль</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for u in page_object %}
+            <tr>
+                <td style="width: 5%">{% if u.photo %}
+                    <img src="{{ u.photo.url }}" alt="{{ u.username }}" class="users-avatar">
+                    {% else %}
+                    <img src="{% static 'images/person1.png' %}" alt="{{ u.username }}" class="user-avatar">
+                    {% endif %}
+                </td>
+                <td>{{ u.username }}</td>
+                <td>{{ u.email }}</td>
+                <td>{{ u.phone_number }}</td>
+                <td>{{ u.get_role_display }}</td>
+                <td>{{ u.date_joined|date:"d.m.Y H:i" }}</td>
+                <td>
+                    {% with status=u.get_status %}
+                    {% if status == 'online' %}
+                    <span class="userslist-badge-active">
+                <img src="{% static 'images/active-status.png' %}"
+                     alt="Онлайн" width="30" height="30" style="margin-left: 10px"></span>
+                    {% elif status == 'offline' %}
+                    <span class="userslist-badge-offline">
+                   <img src="{% static 'images/offline.png' %}" width="30" height="30" style="margin-left: 10px"></span>
+                    {% else %}
+                    <span class="userlist-badge-blocked">
+                <img src="{% static 'images/block-user.jpg' %}" width="30" height="30" style="margin-left: 10px"></span>
+                    {% endif %}
+                    {% endwith %}
+                </td>
+                <td class="userslist-btn-row">
+                    <a href="{% url 'users:change_user_password' u.pk %}" class="userslist-password">Изм. пароль</a>
+                    {% if u.is_active %}
+                    <a href="{% url 'users:block_user' u.pk %}" class="userslist-block">Заблокировать</a>
+                    {% else %}
+                    <a href="{% url 'users:unblock_user' u.pk %}" class="userslist-unblock">Разблокировать</a>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if u != request.user %}
+                    <form method="post" action="{% url 'users:change_user_role' u.id %}"
+                          class="userlist-change-role-row">
+                        {% csrf_token %}
+                        <select name="role" class="userlist-change-role">
+                            {% for value, label in roles %}
+                            <option value="{{ value }}" {% if u.role == value %}selected{% endif %}
+                                    style="font-size: 1em">
+                                {{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="userlist-change-role-save">Сохранить</button>
+                    </form>
+                    {% else %}
+                    <em>Администратор</em>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">Пользователей нет</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {% if page_object.has_other_pages %}
+        <div class="users-list-pagination">
+            {% if page_object.has_previous %}
+            <a href="?page={{ page_object.previous_page_number }}" class="userslist-previous">Назад</a>
+            {% endif %}
+            <span>Страница {{ page_object.number }} из {{ page_object.paginator.num_pages }}</span>
+            {% if page_object.has_next %}
+            <a href="?page={{ page_object.next_page_number }}">Вперёд</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

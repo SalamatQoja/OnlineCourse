@@ -1,0 +1,41 @@
+{% extends "onlinecourse/base.html" %}
+
+{% load static %}
+{% block content %}
+
+<div class="users-profile-page">
+    <div class="users-profile-inner">
+        <div class="users-profile-title">
+            <img src="/static/images/profile-logo.png" style="height: 34px">
+            <h2 style="color: #4e4848">Профиль</h2>
+        </div>
+        <form method="post" enctype="multipart/form-data" class="profile-form">
+            {% csrf_token %}
+
+            {% if user.photo %}
+            <img src="{{ user.photo.url }}" alt="{{ user.username }}" class="users-profile-avatar">
+            {% else %}
+            <p><img src="{{ default_image }}" alt="default avatar"></p>
+            {% endif %}
+
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
+                {{ field }}
+                {% if field.errors %}
+                <span class="form-error">{{ field.errors.0 }}</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div class="users-profile-btn-row">
+                <button type="submit" class="users-profile-btn">Сохранить</button>
+                <button type="submit" class="users-profile-btn-remove">Отмено</button>
+            </div>
+        </form>
+        <hr>
+        <p><a href="{% url 'users:password_change' %}" style="color: red">Сменить пароль</a></p>
+    </div>
+</div>
+
+{% endblock %}

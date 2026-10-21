@@ -1,0 +1,19 @@
+{% extends "onlinecourse/base.html" %}
+
+{% load static %}
+{% block content %}
+
+<div class="verify-code-page">
+    <div class="verify-code-inner">
+        <div class="verify-code-title">
+            <img src="{% static 'images/write-code.jpg' %}" alt="registration" width="50" height="50">
+            <h2 style="color: #515151">Введите код </h2>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="verify-code-btn">Подтвердить</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

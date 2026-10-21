@@ -1,0 +1,31 @@
+{% extends "onlinecourse/base.html" %}
+
+{% load static %}
+{% block content %}
+
+<div class="userslist-unblock-page">
+    <div class="userslist-unblock-inner">
+        <div class="userslist-unblock-title">
+            <img src="{% static 'images/unblock-user.jpg' %}" alt="{{ target_user_block.username }}"
+                 class="user-avatar">
+            <h2 style="color: #4e4848">Разблокировать пользователя?</h2>
+        </div>
+        <p><img src="/static/images/register.jpg" style="height: 30px;"> Пользователь:<strong>{{ target_user.username }}</strong><strong class="userslist-block-role">{{ target_user.get_role_display }}</strong>
+        </p>
+        <p><img src="/static/images/email-logo.jpg" style="height: 25px">Email: {{ target_user.email }}</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="userslist-unblock-btn">Да, разаблокировать</button>
+            <a href="{% url 'users:user_list' %}" class="userslist-unblock-remove">Отмена</a>
+        </form>
+    </div>
+</div>
+{% if messages %}
+<div class="users-messages-inform">
+    {% for message in messages %}
+    <p class="{{ message.tags }}" style="color: white"><img src="{% static 'images/active-status.png' %}"
+                                                            alt="Онлайн" width="23" height="23"> {{ message }}</p>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

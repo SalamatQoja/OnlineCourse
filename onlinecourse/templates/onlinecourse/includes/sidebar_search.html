@@ -1,0 +1,50 @@
+{% load static %}
+<aside class="genres-search-side">
+    <div class="search-inner">
+        <div class="sidebar-categories">
+            <h3 class="search-title">Категории</h3>
+            {% if sidebar_categories %}
+            <select onchange="if (this.value) { window.location.href = this.value; }">
+                <option value="">Выберите категорию...</option>
+                {% for category in sidebar_categories %}
+                <option value="{% url 'onlinecourse:category_detail' category.slug %}">
+                    {{ category.name }} ({{ category.courses_count }})
+                </option>
+                {% endfor %}
+            </select>
+            {% else %}
+            <p>Категории не найдены</p>
+            {% endif %}
+        </div>
+        <div class="sidebar-authors">
+            <h3 class="search-title">Авторы</h3>
+            {% if sidebar_authors %}
+            <select onchange="if (this.value) { window.location.href = this.value; }">
+                <option value="">Выберите авторы...</option>
+                {% for author in sidebar_authors %}
+                <option value="{% url 'onlinecourse:author_detail' author.pk %}">{{ author.first_name }} {{ author.last_name }}
+                    ({{author.course_count}})
+                </option>
+                {% endfor %}
+            </select>
+            {% else %}
+            <p>Авторы не найдены</p>
+            {% endif %}
+        </div>
+        <div class="sidebar-courses">
+            <h3 class="search-title">Курсы</h3>
+            {% if sidebar_courses %}
+            <select onchange="if (this.value) { window.location.href = this.value; }">
+                <option value="">Выберите курсов</option>
+                {% for course in sidebar_сourses %}
+                <option value="{% url 'onlinecourse:course_detail' course.slug %}">
+                    {{ course.title }} ({{ course.courses_count }})
+                </option>
+                {% endfor %}
+            </select>
+            {% else %}
+            <p>Курсов не найдены</p>
+            {% endif %}
+        </div>
+    </div>
+</aside>

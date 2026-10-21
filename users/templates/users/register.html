@@ -1,0 +1,37 @@
+{% extends "onlinecourse/base.html" %}
+
+{% load static %}
+{% block content %}
+
+<div class="register-page">
+    <div class="register-page-inner">
+        <div class="register-page-title">
+            <img src="/static/images/register.jpg" style="height: 30px">
+            <h2 style="color: #4e4848"> Регистрация</h2>
+        </div>
+        <form method="post" class="register-form" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
+                {{ field }}
+                {% if field.errors %}
+                <span class="form-error">{{ field.errors.0 }}</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+            <div class="register-btn-row">
+                <button type="submit" class="register-btn"><img src="/static/images/save.png" style="height: 20px">
+                    Создать
+                </button>
+                <button type="submit" class="register-btn-remove"><img src="/static/images/remove.png" height="20px"
+                                                                       style="margin-left: -10px"> Отмена
+                </button>
+            </div>
+            <a href="{% url 'users:login' %}" class="register-login-next">Авторизация</a>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

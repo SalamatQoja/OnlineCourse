@@ -1,0 +1,58 @@
+{% extends "onlinecourse/base.html" %}
+
+{% load static %}
+{% block content %}
+<div class="category-detail-page">
+    {% include "onlinecourse/includes/sidebar_search.html" %}
+    <div class="category-deatil-container">
+        <div class="category-detail-title">
+            <div class="category-logo">
+                <img src="{% static 'onlinecourse/images/category3.png' %}" alt="Логотип сайта" width="100" height="70">
+                <h1>Категория: {{ category.name }}</h1>
+            </div>
+            {% if category.description %}
+            <p class="category-description">{{ category.description }}</p>
+            {% endif %}
+            <p class="category-course_count">Найдено курсов: {{ courses|length }}</p>
+        </div>
+
+        {% if category.children.all %}
+        <div class="subcategories">
+            <h3>Подкатегории</h3>
+            <ul>
+                {% for child in category.children.all %}
+                <li>
+                    <a href="{{ child.get_absolute_url }}">{{ child.name }}</a>
+                    <span>({{ child.courses.count }})</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        <div class="categories-course-grid">
+            {% for course in courses %}
+            <div class="categories-course-card">
+                <a href="{{ course.get_absolute_url }}">
+                    {% if course.cover %}
+                    <img src="{{ course.cover.url }}" alt="{{ course.title }}" class="categories-course-image">
+                    {% endif %}
+                    <h3>{{ course.course_name }}</h3>
+                    <p class="authors">{{ course.display_authors }}</p>
+                    <p class="year">{{ course.language }}</p>
+                    <p class="level">{{ course.get_level_display }}</p>
+                    <p class="price">{{ course.price }} сум</p>
+                    <p class="status">{{ course.get_status_display }}</p>
+                    <p class="tags">
+                        {{ course.tags.all|join:", " }}
+                    </p>
+                </a>
+            </div>
+            {% empty %}
+            <p>В этой категории пока нет курсов</p>
+            {% endfor %}
+        </div>
+
+        <a href="{% url 'onlinecourse:home' %}" class="back-link">← Назад к категориям</a>
+    </div>
+</div>
+{% endblock %}

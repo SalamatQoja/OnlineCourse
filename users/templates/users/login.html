@@ -1,0 +1,26 @@
+{% extends "onlinecourse/base.html" %}
+
+{% load static %}
+{% block content %}
+
+<div class="login-page">
+    <div class="login-page-inner">
+        <h2 class="login-title">Вход</h2>
+        <form method="post" class="login-form">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
+                {{ field }}
+                {% if form.non_field_errors %}
+                <div class="form-error">{{ form.non_field_errors.0 }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            <button type="submit" class="login-button">Войти</button>
+
+            <p class="login-no-account1">Нет аккаунта? <a href="{% url 'users:register_email' %}" class="login-no-account">Зарегистрироваться</a></p>
+        </form>
+    </div>
+</div>
+{% endblock %}
