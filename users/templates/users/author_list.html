@@ -1,0 +1,54 @@
+{% extends "onlinecourse/base.html" %}
+{% load static %}
+
+{% block title %}Авторы{% endblock %}
+
+{% block content %}
+<div class="author-list-page">
+    <div class="author-list-container">
+        <header class="author-list-title">
+            <img src="{% static 'images/users.png' %}" alt="picture" width="40" height="25">
+            <h2 style="color: #4e4848;">Авторы</h2>
+        </header>
+        {% if page_object %}
+        <div class="authors-list-grid">
+            {% for author in page_object %}
+            <div class="author-list-card">
+                <a href="{% url 'users:author_detail' author.pk %}">
+                    {% if author.photo %}
+                    <img src="{{ author.photo.url }}" alt="{{ author.get_full_name }}" class="author-list-avatar">
+                    {% else %}
+                    <img src="/static/images/person1.png" alt="Нет фото" class="author-list-avatar">
+                    {% endif %}
+                    <article class="author-list-card-inform">
+                        <h3>{{ author.get_full_name|default:author.username }}</h3>
+                        {% if author.bio %}
+                        <p>
+                            <img src="/static/images/write-logo2.jpg" alt="Нет фото" width="18" height="18" >
+                            {{ author.bio|truncatewords:15 }}</p>
+                        {% endif %}
+                    </article>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        {# Пагинация #}
+        <div class="author-list-pagination">
+            {% if page_object.has_previous %}
+            <a href="?page={{ page_object.previous_page_number }}">← Назад</a>
+            {% endif %}
+
+            <span>Страница {{ page_object.number }} из {{ page_object.paginator.num_pages }}</span>
+
+            {% if page_object.has_next %}
+            <a href="?page={{ page_object.next_page_number }}">Вперёд →</a>
+            {% endif %}
+        </div>
+        {% else %}
+        <p>Авторов пока нет.</p>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

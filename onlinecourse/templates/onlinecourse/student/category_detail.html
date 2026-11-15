@@ -1,0 +1,92 @@
+{% extends "onlinecourse/student/layout.html" %}
+
+{% load static %}
+{% block student_content %}
+<div class="category-detail-page">
+    <div class="category-detail-inform">
+        <header class="category-detail-title-row">
+            <div class="category-detail-title">
+                <img src="/static/images/category-logo.png" width="20" height="20">
+                <h2 style="color: #4e4848">Категория: {{ category.name }}</h2>
+            </div>
+            <a href="{% url 'onlinecourse:category_list' %}" class="c category-detail-previous">Назад</a>
+        </header>
+        <main class="category-detail-rigth-inform">
+            <div class="category-detail-title">
+                <img src="/static/images/course-logo.jpg" width="25" height="25">
+                <p class="category-course_count">Найдено курсов: <span
+                        style="color: green">{{ courses|length }}</span></p>
+            </div>
+            {% if category.description %}
+            <div class="category-detail-title-description">
+                <img src="/static/images/write-logo2.jpg" width="25" height="16">
+                <p class="category-description">Описание</p>
+            </div>
+            <p class="category-detail-title-description-word">{{ category.description }}</p>
+            {% endif %}
+
+            {% if category.children.all %}
+            <div class="subcategories">
+                <h3>Подкатегории</h3>
+                <ul>
+                    {% for child in category.children.all %}
+                    <li>
+                        <a href="{{ child.get_absolute_url }}">{{ child.name }}</a>
+                        <span>({{ child.courses.count }})</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </main>
+        <div class="category-detail-inform-container">
+            {% for course in courses %}
+            <div class="category-detail-left-inform-card">
+                {% if course.cover %}
+                <img src="{{ course.cover.url }}" alt="{{ course.title }}" width="100%" height="160">
+                {% endif %}
+                <div class="category-detail-left-inform-title">
+                    <h2 style="color: green">
+                        <img src="/static/images/registrtaion-logo1.jpg" style="height: 34px">{{ course.course_name}}
+                    </h2>
+                    <div class="teacher-courses-list-card-title">
+                        <img src="/static/images/status-logo.jpg" alt="Нет изображения" width="18" height="19">
+                        <p class="teacher-courses-list-status-cell">Статус
+                            <img src="{% static 'images/statuses/' %}{{ course.status|lower }}.png"
+                                 alt="{{ course.get_status_display }}"
+                                 class="status-icon"
+                                 title="{{ course.get_status_display }}"
+                                 style="width: 30px" height="28px">
+                            {{ course.get_status_display }}</p>
+                    </div>
+                    <div class="teacher-courses-list-card-title">
+                        <img src="/static/images/category-logo.png" alt="Нет изображения" width="19" height="19">
+                        <p> Категорий:
+                            {% for cat in course.categories.all %}
+                            <a href="{{ cat.get_absolute_url }}">{{ cat.name }}</a>
+                            {% if not forloop.last %},
+                            {% endif %}
+                            {% endfor %}</p>
+                    </div>
+                    <div class="teacher-courses-list-card-title">
+                        <img src="/static/images/price-logo.jpg" alt="Нет изображения" width="26" height="25">
+                        <p>Цена: {% if course.price > 0 %}{{ course.price }} сум
+                            {% else %}Бесплатно
+                            {% endif %}</p>
+                    </div>
+                    <p class="tags">
+                        {{ course.tags.all|join:", " }}
+                    </p>
+                    <a href="{{ course.get_absolute_url }}" class="categories-list-card-open">Открыть</a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="category-detail-not-result">
+                <img src="/static/images/not report2.jpg" width="70" height="60">
+                <p>В этой категории пока нет курсов</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

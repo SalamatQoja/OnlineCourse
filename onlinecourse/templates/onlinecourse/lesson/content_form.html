@@ -1,0 +1,26 @@
+{% extends "users/teacher_dashboard.html" %}
+
+{% load static %}
+{% block content_form_content %}
+<div class="lesson-content-form">
+    <main class="lesson-content-container">
+        <header class="lesson-content-title">
+            <img src="/static/images/lesson-logo.png" width="55" height="50">
+            <h2 style="color: #555252">{{ title }}</h2>
+        </header>
+        <p class="lesson-content-inform">
+            Урок: <strong style="color: green">{{ lesson.name }}</strong> ·
+            Модуль:<strong style="color: green"> {{ module.name }} </strong>·
+            Курс:<strong style="color: darkmagenta"> {{ course.course_name }}</strong>
+        </p>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="lesson_create-save">Сохранить</button>
+            <a href="{% url 'onlinecourse:lesson_detail' lesson.pk %}"
+               class="lesson_create-secondary">Отмена</a>
+        </form>
+    </main>
+</div>
+{% endblock %}

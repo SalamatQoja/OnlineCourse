@@ -1,0 +1,26 @@
+{% extends "users/teacher_dashboard.html" %}
+
+{% load static %}
+{% block content_delete_content %}
+<h2>Удалить контент урока?</h2>
+<p>Урок: <strong>{{ lesson.name }}</strong></p>
+
+<ul>
+    {% if content.video_url %}
+    <li>Видео: {{ content.video_url }}</li>
+    {% endif %}
+    {% if content.text_body %}
+    <li>Текст: {{ content.text_body|truncatewords:10 }}</li>
+    {% endif %}
+    {% if content.file %}
+    <li>Файл: {{ content.file.name }}</li>
+    {% endif %}
+</ul>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Удалить</button>
+    <a href="{% url 'onlinecourse:lesson_detail' lesson.pk %}"
+       class="btn btn-secondary">Отмена</a>
+</form>
+{% endblock %}

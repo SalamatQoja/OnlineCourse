@@ -1,0 +1,32 @@
+{% extends "users/teacher_dashboard.html" %}
+
+{% load static %}
+{% block lesson_form_content %}
+<main class="lesson_create-page">
+    <div class="lesson_create_container">
+        <header class="lesson_create-title">
+            <img src="/static/images/lesson-logo.png" width="55" height="50">
+            <h2 style="color: #5a5a5a">{{ title }}</h2>
+        </header>
+
+        {% if module %}
+        <div class="lesson_create-inform">
+            <img src="/static/images/module-logo.jpg" width="25" height="20">
+            <p><strong style="color: green">Модуль:</strong> {{ module.name }}
+                <img src="/static/images/course-logo2.png" width="25" height="20">
+                <strong style="color: #aa0000">(курс: {{ module.course.course_name }})</strong></p>
+        </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="lesson_create-save">Сохранить</button>
+            {% if module %}
+            <a href="{% url 'onlinecourse:lesson_list' %}"
+               class="lesson_create-secondary">Отмена</a>
+            {% endif %}
+        </form>
+    </div>
+</main>
+{% endblock %}

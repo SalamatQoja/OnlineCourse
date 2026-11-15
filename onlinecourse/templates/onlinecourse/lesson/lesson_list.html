@@ -1,0 +1,129 @@
+{% extends "onlinecourse/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="lesson-list-page">
+    <div class="lesson-list-container">
+        {% include "onlinecourse/includes/sidebar_search.html" %}
+        <main class="lesson-list-inner" id="lessonApp">
+            <header class="lesson-list-title">
+                <img src="{% static 'images/book-logo1.png' %}" width="35" height="30" alt="Уроки">
+                <h2 style="color: #5a5959">{{ title|default:"Все уроки" }}</h2>
+            </header>
+
+            <div class="lp-toolbar">
+                <form method="get" class="lp-filter" id="courseFilterForm">
+                    <select name="course" id="courseSelect" class="lp-select">
+                        <option value="">— Все курсы —</option>
+                        {% for c in all_courses %}
+                        <option value="{{ c.id }}"
+                                {% if selected_course== c.id|stringformat:
+                        "s" %}selected {% endif %}>
+                        {{ c.course_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <noscript>
+                        <button type="submit" class="lp-btn">Фильтр</button>
+                    </noscript>
+                    {% if selected_course %}
+                    <a href="{% url 'onlinecourse:lesson_list' %}" class="lp-reset">Сбросить</a>
+                    {% endif %}
+                </form>
+
+                <input type="search" id="lessonSearch" class="lp-search" placeholder="🔍 Поиск урока…">
+
+                <div class="lp-toolbar__buttons">
+                    <button type="button" class="lp-btn lp-btn--ghost" id="expandAll">Развернуть всё</button>
+                    <button type="button" class="lp-btn lp-btn--ghost" id="collapseAll">Свернуть всё</button>
+                </div>
+            </div>
+
+            {% for course in courses %}
+            <section class="lp-course">
+                <header class="lp-course__head">
+                    <h3 class="lp-course__title">
+                        <a href="{{ course.get_absolute_url }}">{{ course.course_name }}</a>
+                    </h3>
+                    <span class="lp-chip lp-chip--light">{{ course.modules.count }} модулей</span>
+                </header>
+
+                <div class="lp-modules">
+                    {% for module in course.modules.all %}
+                    <article class="lp-module">
+                        <button type="button"
+                                class="lp-module__toggle"
+                                aria-expanded="false"
+                                aria-controls="module-{{ module.pk }}">
+                            <span class="lp-module__num">{{ module.order }}</span>
+                            <span class="lp-module__name">{{ module.name }}</span>
+                            <span class="lp-chip">{{ module.lessons.count }} уроков</span>
+                            <span class="lp-module__arrow">▾</span>
+                        </button>
+
+                        <div class="lp-module__body" id="module-{{ module.pk }}" hidden>
+                            <ul class="lp-lessons">
+                                {% for lesson in module.lessons.all %}
+                                <li class="lp-lesson" data-name="{{ lesson.name|lower }}"
+                                    title="Порядок: {{ lesson.order }}">
+                                    <span class="lp-lesson__num">{{ forloop.counter }}</span>
+
+                                    <div class="lp-lesson__main">
+                                        <span class="lp-lesson__name">{{ lesson.name }}</span>
+                                        {% if lesson.is_free_preview %}
+                                        <span class="lp-badge lp-badge--free">бесплатно</span>
+                                        {% endif %}
+                                    </div>
+
+                                    <span class="lp-badge lp-badge--type">{{ lesson.get_type_display }}</span>
+                                    <span class="lp-lesson__duration">⏱ {{ lesson.duration }} мин</span>
+
+                                    <div class="lp-lesson__actions">
+                                        <a href="{% url 'onlinecourse:lesson_detail' lesson.pk %}"
+                                           class="lp-btn lp-btn--small">Открыть</a>
+
+                                        {% if request.user == course.author %}
+                                        <a href="{% url 'onlinecourse:lesson_update' lesson.pk %}"
+                                           class="lp-icon-btn" title="Редактировать">✏️</a>
+
+                                        <form action="{% url 'onlinecourse:lesson_delete' lesson.pk %}"
+                                              method="post"
+                                              onsubmit="return confirm('Удалить урок «{{ lesson.name|escapejs }}»?');">
+                                            {% csrf_token %}
+                                            <button type="submit" class="teacher-courses-remove-btn"
+                                                    title="Удалить">
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                </li>
+                                {% empty %}
+                                <li class="lp-empty">Уроков пока нет</li>
+                                {% endfor %}
+                            </ul>
+
+                            {% if request.user == course.author %}
+                            <a href="{% url 'onlinecourse:lesson_create' module.pk %}"
+                               class="lp-btn lp-btn--add">+ Добавить урок</a>
+                            {% endif %}
+                        </div>
+                    </article>
+                    {% empty %}
+                    <p class="lp-empty">В этом курсе пока нет модулей.</p>
+                    {% endfor %}
+                </div>
+            </section>
+            {% empty %}
+            <div class="project-list-not-report">
+                <img src="{% static 'images/not report2.jpg' %}" width="50" height="43" alt="Модули">
+                <p>У вас пока нет курсов.</p>
+            </div>
+            {% endfor %}
+
+            <p class="lp-nothing" id="noResults" hidden>По вашему запросу ничего не найдено.</p>
+        </main>
+    </div>
+</div>
+
+<script src="{% static 'javascript/lesson_list.js' %}" defer></script>
+{% endblock %}

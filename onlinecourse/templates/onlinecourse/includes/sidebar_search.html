@@ -1,13 +1,13 @@
 {% load static %}
-<aside class="genres-search-side">
-    <div class="search-inner">
+<aside class="project-search-side">
+    <div class="project-search-container">
         <div class="sidebar-categories">
-            <h3 class="search-title">Категории</h3>
+            <h3 class="project-search-title">Категории</h3>
             {% if sidebar_categories %}
-            <select onchange="if (this.value) { window.location.href = this.value; }">
-                <option value="">Выберите категорию...</option>
+            <select onchange="if (this.value) { window.location.href = this.value; }" class="project-search-select">
+                <option value="" class="project-search-option">Выберите категорию...</option>
                 {% for category in sidebar_categories %}
-                <option value="{% url 'onlinecourse:category_detail' category.slug %}">
+                <option value="{% url 'onlinecourse:category_detail' category.slug %}" class="project-search-option">
                     {{ category.name }} ({{ category.courses_count }})
                 </option>
                 {% endfor %}
@@ -17,14 +17,12 @@
             {% endif %}
         </div>
         <div class="sidebar-authors">
-            <h3 class="search-title">Авторы</h3>
+            <h3 class="project-search-title">Авторы</h3>
             {% if sidebar_authors %}
-            <select onchange="if (this.value) { window.location.href = this.value; }">
-                <option value="">Выберите авторы...</option>
+            <select onchange="if (this.value) { window.location.href = this.value; }" class="project-search-select">
+                <option value="" class="project-search-option">Выберите авторы...</option>
                 {% for author in sidebar_authors %}
-                <option value="{% url 'onlinecourse:author_detail' author.pk %}">{{ author.first_name }} {{ author.last_name }}
-                    ({{author.course_count}})
-                </option>
+                <option value="{% url 'users:author_detail' author.pk %}">{{ author.first_name }} {{ author.last_name }} /option>
                 {% endfor %}
             </select>
             {% else %}
@@ -32,13 +30,13 @@
             {% endif %}
         </div>
         <div class="sidebar-courses">
-            <h3 class="search-title">Курсы</h3>
+            <h3 class="project-search-title">Курсы</h3>
             {% if sidebar_courses %}
-            <select onchange="if (this.value) { window.location.href = this.value; }">
-                <option value="">Выберите курсов</option>
-                {% for course in sidebar_сourses %}
+            <select onchange="if (this.value) { window.location.href = this.value; }" class="project-search-select">
+                <option value="" class="project-search-option">Выберите курсов</option>
+                {% for course in sidebar_courses %}
                 <option value="{% url 'onlinecourse:course_detail' course.slug %}">
-                    {{ course.title }} ({{ course.courses_count }})
+                    {{ course.course_name }} ({{ course.courses_count }})
                 </option>
                 {% endfor %}
             </select>

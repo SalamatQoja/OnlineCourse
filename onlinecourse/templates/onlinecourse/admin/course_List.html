@@ -1,0 +1,65 @@
+{% extends "onlinecourse/base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/course_roles.css' %}">
+
+<div class="ac-page">
+    <div class="ac-container">
+        {% include "onlinecourse/includes/sidebar_search.html" %}
+
+        <div class="ac-main">
+            <header class="ac-header">
+                <h2>{{ title|default:"Все курсы" }} <small>(администратор)</small></h2>
+                <input type="search" id="courseSearch" class="sc-search" placeholder="🔍 Найти курс…">
+            </header>
+
+            {% if messages %}
+            {% for message in messages %}
+            <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
+
+            {% if courses %}
+            <div class="ac-table-wrap">
+                <table class="ac-table">
+                    <thead>
+                    <tr>
+                        <th>№</th>
+                        <th>Курс</th>
+                        <th>Автор</th>
+                        <th>Статус</th>
+                        <th>Цена</th>
+                        <th>Создан</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for course in courses %}
+                    <tr data-course-name="{{ course.course_name|lower }}">
+                        <td>{{ forloop.counter }}</td>
+                        <td><a href="{% url 'onlinecourse:course_detail' course.slug %}">{{ course.course_name }}</a>
+                        </td>
+                        <td>{{ course.author.get_full_name|default:course.author.username }}</td>
+                        <td><span
+                                class="ac-status ac-status--{{ course.status }}">{{ course.get_status_display }}</span>
+                        </td>
+                        <td>{% if course.price > 0 %}{{ course.price }} сум{% else %}Бесплатно{% endif %}</td>
+                        <td>{{ course.created|date:"d.m.Y" }}</td>
+                        <td><a href="{% url 'onlinecourse:course_detail' course.slug %}" class="sc-open">Открыть</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <p class="cr-nothing" id="courseNoResults" hidden>По вашему запросу ничего не найдено.</p>
+            {% else %}
+            <p>Курсов пока нет.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'javascript/course_search.js' %}" defer></script>
+{% endblock %}

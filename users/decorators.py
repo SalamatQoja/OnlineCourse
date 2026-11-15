@@ -10,14 +10,14 @@ def role_required(*roles) -> Callable:
 
     def decorator(view_func):
         @wraps(view_func)
-        def wrapper(request, *args, **kwargs):
+        def wrapper(request, *args, **kwargs):# lyuboy argument prinimat etedi
             if not request.user.is_authenticated:
                 raise PermissionDenied
 
             user_role = getattr(request.user, 'role', None)
             if user_role not in allowed:
                 raise PermissionDenied
-            return view_func(request, *args, **kwargs)
+            return view_func(request, *args, **kwargs)#передаёт дальше 
 
         return wrapper
 

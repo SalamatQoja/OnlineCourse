@@ -119,8 +119,10 @@ class CodeVerificationForm(forms.Form):
 
 
 class PasswordChangeForm(PasswordChangeForm):
-    old_password = forms.CharField(label='Старый пароль', widget=forms.PasswordInput(attrs={'class': 'form-input-change-for-users1'}))
-    new_password1 = forms.CharField(label='Новый пароль', widget=forms.PasswordInput(attrs={'class': 'form-input-change-for-users2'}))
+    old_password = forms.CharField(label='Старый пароль',
+                                   widget=forms.PasswordInput(attrs={'class': 'form-input-change-for-users1'}))
+    new_password1 = forms.CharField(label='Новый пароль',
+                                    widget=forms.PasswordInput(attrs={'class': 'form-input-change-for-users2'}))
     new_password2 = forms.CharField(label='Потверждение пароль',
                                     widget=forms.PasswordInput(attrs={'class': 'form-input-change-for-users3'}))
 

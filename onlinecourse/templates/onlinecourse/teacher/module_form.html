@@ -1,0 +1,24 @@
+{% extends "onlinecourse/teacher/layout.html" %}
+
+{% load static %}
+{% block teacher_content %}
+<div class="module-create-form-page">
+    <main class="module-create-container">
+        <header class="module-create-title">
+            <img src="/static/images/module-logo2.jpg" width="30" height="26">
+            <h2 style="color: #686868">{{ title }}</h2>
+        </header>
+        <p class="module-create-course-name">
+            <img src="/static/images/course-logo2.png" width="25" height="23">
+            <strong>Курс:</strong><strong style="color: green">{{ course.course_name }}</strong></p>
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="lesson_create-save">Сохранить</button>
+            <a href="{% url 'onlinecourse:course_detail' course.slug %}"
+               class="lesson_create-secondary">Отмена</a>
+        </form>
+    </main>
+</div>
+{% endblock %}

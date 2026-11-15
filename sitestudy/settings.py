@@ -61,6 +61,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'onlinecourse.context_processors.sidebar_context',
             ],
         },
     },
@@ -118,6 +119,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']
 
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration

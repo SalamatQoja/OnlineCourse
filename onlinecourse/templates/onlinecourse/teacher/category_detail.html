@@ -1,0 +1,73 @@
+{% extends "onlinecourse/teacher/layout.html" %}
+
+{% load static %}
+{% block teacher_content %}
+<div class="category-detail-page">
+    <div class="category-detail-inform">
+        <header class="category-detail-inform-inner">
+            <div class="category-detail-title-item">
+                <div class="category-detail-title">
+                    <img src="/static/images/category-logo.png" width="20" height="20">
+                    <h2 style="color: #4e4848">Категория: {{ category.name }}</h2>
+                </div>
+                <a href="{% url 'onlinecourse:category_list' %}" class="c category-detail-previous">Назад</a>
+            </div>
+        </header>
+        <div class="category-detail-inform-container">
+            <div class="categories-course-grid">
+                {% for course in courses %}
+                <div class="categories-course-card">
+                    <a href="{{ course.get_absolute_url }}">
+                        {% if course.cover %}
+                        <img src="{{ course.cover.url }}" alt="{{ course.title }}" class="categories-course-image">
+                        {% endif %}
+                        <h3>{{ course.course_name }}</h3>
+                        <p class="authors">{{ course.display_authors }}</p>
+                        <p class="year">{{ course.language }}</p>
+                        <p class="level">{{ course.get_level_display }}</p>
+                        <p class="price">{{ course.price }} сум</p>
+                        <p class="status">{{ course.get_status_display }}</p>
+                        <p class="tags">
+                            {{ course.tags.all|join:", " }}
+                        </p>
+                    </a>
+                </div>
+                {% empty %}
+                <div class="category-detail-not-result">
+                    <img src="/static/images/not report2.jpg" width="70" height="60">
+                    <p>В этой категории пока нет курсов</p>
+                </div>
+                {% endfor %}
+            </div>
+            <main class="category-detail-rigth-inform">
+                <div class="category-detail-title">
+                    <img src="/static/images/course-logo.jpg" width="25" height="25">
+                    <p class="category-course_count">Найдено курсов: <span
+                            style="color: green">{{ courses|length }}</span></p>
+                </div>
+                {% if category.description %}
+                <div class="category-detail-title-description">
+                    <img src="/static/images/write-logo2.jpg" width="25" height="16">
+                    <p class="category-description">Описание</p>
+                </div>
+                <p class="category-detail-title-description-word">{{ category.description }}</p>
+                {% endif %}
+
+                {% if category.children.all %}
+                <div class="subcategories">
+                    <h3>Подкатегории</h3>
+                    <ul>
+                        {% for child in category.children.all %}
+                        <li>
+                            <a href="{{ child.get_absolute_url }}">{{ child.name }}</a>
+                            <span>({{ child.courses.count }})</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </main>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends "onlinecourse/student/layout.html" %}
+{% load static %}
+
+{% block student_content %}
+<div class="module-detail-page">
+    <div class="module-detail-container">
+        <div class="module-detail-inner">
+            <main class="module-detail-inform">
+                <article class="module-detail-title">
+                    <div class="module-detail-title-inner">
+                        <img src="/static/images/module-logo.jpg" width="43" height="33">
+                        <h1 style="color: darkmagenta">{{ module.order }}. {{ module.name }}</h1>
+                    </div>
+                    <a href="{% url 'onlinecourse:module_list' %}"
+                       class="module-detail-previous">Назад</a>
+
+                </article>
+                <p style="color:#888;">
+                    <img src="/static/images/active-status.png" width="20" height="20">
+                    Модуль курса <strong>{{ course.course_name }}</strong> ·
+                    <strong style="color: #608c20">{{ lessons|length }} уроков</strong>
+                </p>
+                <hr>
+
+                {% if lessons %}
+
+                <div class="module-detail-card">
+                    {% for lesson in lessons %}
+                    <div class="module-detail-card-container">
+                        <div class="module-detail-card-inner">
+                            <div class="module-detail-lesson-title">
+                                <img src="/static/images/module-logo.jpg" width="25" height="20">
+                                <p>Урок: {{ lesson.name }}
+                                    {% if lesson.is_free_preview %}
+                                    <span style="color:green;font-size:12px;">бесплатно</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="module-detail-lesson-title">
+                                <img src="/static/images/view-left-logo.png" width="25" height="20">
+                                <p>Тип: {{ lesson.get_type_display }}</p>
+                            </div>
+                            <div class="module-detail-lesson-title">
+                                <img src="/static/images/duration-logo.png" width="23" height="19">
+                                <p>Длителность: {{ lesson.duration }} мин</p>
+                            </div>
+                            <div class="module-detail-lesson-title-actions">
+                                <a href="{% url 'onlinecourse:lesson_detail' lesson.pk %}"
+                                   class="module-detail-add-btn">Открыть</a>
+
+                                {% if is_owner %}
+                                <div class="module-detail-lesson-change">
+                                    <a href="{% url 'onlinecourse:lesson_update' lesson.pk %}"
+                                       title="Редактировать">✏️</a>
+
+                                    <form action="{% url 'onlinecourse:lesson_delete' lesson.pk %}"
+                                          method="post" style="display:inline;"
+                                          onsubmit="return confirm('Удалить урок «{{ lesson.name }}»?');">
+                                        {% csrf_token %}
+                                        <button class="teacher-courses-remove-btn" type="submit"></button>
+                                    </form>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="course-detail-module-card-noresult">
+                        <img src="/static/images/not report2.jpg" width="40px" height="38px">
+                        <p style="color:#999;">В этом модуле пока нет уроков</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+{% endblock %}

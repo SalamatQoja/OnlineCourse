@@ -1,0 +1,14 @@
+{% extends "onlinecourse/teacher/layout.html" %}
+
+{% load static %}
+{% block teacher_content %}
+<div class="category-card-confirm-page">
+    <h1>Удалить категорий?</h1>
+    <p>Вы уверены, что хотите удалить «{{ category.name }}»? Действие необратимо.</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn-danger">Да, удалить</button>
+        <a href="{% url 'onlinecourse:category_list' %}">Отмена</a>
+    </form>
+</div>
+{% endblock %}

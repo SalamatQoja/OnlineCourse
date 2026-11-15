@@ -1,0 +1,76 @@
+{% extends "onlinecourse/base.html" %}
+
+{% load static %}
+{% block content %}
+<div class="lesson-detail-page">
+    <div class="lesson-detail-container">
+        {% include "onlinecourse/includes/sidebar_search.html" %}
+        <main class="lesson-detail-inner">
+            <article class="lesson-detail-title-row">
+                <div class="lesson-detail-title">
+                    <img src="/static/images/book-logo1.png" width="25" height="20">
+                    <h2 style="color: #595555">Контент уроке: <span
+                            style="color: green">{{ content.lesson.name }}</span></h2>
+                </div>
+                <div class="lesson-detail-actions">
+                    {% if is_owner %}
+                    <hr>
+                    <a href="{% url 'onlinecourse:lesson_content_edit' lesson.pk %}"
+                       class="btn btn-primary btn-sm">
+                        {% if content %}<span style="color: green">✏️Редактировать</span> {% else %} <span
+                            class="lesson-detail-content-add">+ Добавить контент</span>{% endif %}
+                    </a>
+                    {% if content %}
+                    <form action="{% url 'onlinecourse:lesson_content_delete' lesson.pk %}"
+                          method="post" style="display:inline;"
+                          onsubmit="return confirm('Удалить контент уроке «{{ content.lesson.name }}»?');">
+                        {% csrf_token %}
+                        <button class="teacher-courses-remove-btn" type="submit"></button>
+                    </form>
+                    {% endif %}
+                </div>
+            </article>
+            {% if content %}
+            <div class="lesson-detail-content-row">
+                <div class="lesson-detail-content-item">
+                    {% if content.video_url %}
+                    <header class="lesson-detail-content-title">
+                        <img src="/static/images/video-logo.png" width="25" height="20">
+                        <h3 style="color: #5e5c5c">Видео</h3>
+                    </header>
+                    <div style="position:relative;padding-bottom:56.25%;height:0;">
+                        <iframe src="{{ content.video_url }}"
+                                style="position:absolute;top:0;left:0;width:100%;height:100%;"
+                                frameborder="0" allowfullscreen></iframe>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="lesson-detail-content-item">
+
+                    {% if content.text_body %}
+                    <header class="lesson-detail-content-title">
+                        <img src="/static/images/text-logo.png" width="35" height="30">
+                        <h3 style="color: #5e5c5c">Текст</h3>
+                    </header>
+                    <article style="margin-left: 20px">{{ content.text_body|linebreaks }}</article>
+                    {% endif %}
+                </div>
+                <div class="lesson-detail-content-item">
+
+                    {% if content.file %}
+                    <header class="lesson-detail-content-title">
+                        <img src="/static/images/video-logo.png" width="25" height="20">
+                        <h3 style="color: #5e5c5c">Вложение</h3>
+                    </header>
+                    <a href="{{ content.file.url }}" download>📎 Скачать</a>
+                    {% endif %}
+                    {% else %}
+                    <p style="color:#999;">Контент ещё не добавлен.</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </main>
+    </div>
+</div>
+{% endblock %}

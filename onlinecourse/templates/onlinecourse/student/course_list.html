@@ -1,0 +1,97 @@
+{% extends "onlinecourse/student/layout.html" %}
+{% load static %}
+
+{% block student_content %}
+<link rel="stylesheet" href="{% static 'css/course_roles.css' %}">
+
+<div class="teacher-courses-list-page">
+    <div class="teacher-courses-list-container">
+
+        <div class="teacher-courses-list-main">
+            <div class="teacher-courses-list-page-header">
+                <div class="teacher-courses-list-title">
+                    <img src="/static/images/list2.png" width="30" height="20">
+                    <h2 style="color: #5c5a5a">Все курсы</h2>
+                </div>
+                <div class="teacher-courses-list-search-row">
+                    {% if request.user == course.author %}
+                    <a href="{% url 'onlinecourse:course_create' %}" class="teacher-courses-list-btn">+ Создать курс</a>
+                    {% endif %}
+                    <input type="text" placeholder="найти..." class="teacher-courses-list-input">
+                </div>
+            </div>
+
+            {% if messages %}
+            {% for message in messages %}
+            <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
+
+            {% if courses %}
+
+            <main class="teacher-courses-list-inform">
+                {% for course in courses %}
+                <div class="teacher-courses-list-inform-card">
+                    {% if course.cover %}
+                    <img src="{{ course.cover.url }}" alt="{{ category.name }}" width="100%" height="190">
+                    {% else %}
+                    <img src="/static/images/published.png" alt="Нет изображения">
+                    {% endif %}
+                    <div class="teacher-courses-list-inform-card-inner">
+                        <div class="teacher-courses-list-card-title">
+                            <h3 style="color: green">{{ course.course_name }}</h3>
+                        </div>
+                        <div class="teacher-courses-list-card-title">
+                            <img src="/static/images/status-logo.jpg" alt="Нет изображения" width="18" height="19">
+                            <p class="teacher-courses-list-status-cell">Статус
+                                <img src="{% static 'images/statuses/' %}{{ course.status|lower }}.png"
+                                     alt="{{ course.get_status_display }}"
+                                     class="status-icon"
+                                     title="{{ course.get_status_display }}"
+                                     style="width: 30px" height="28px">
+                                {{ course.get_status_display }}</p>
+                        </div>
+                        <div class="teacher-courses-list-card-title">
+                            <img src="/static/images/category-logo.png" alt="Нет изображения" width="19" height="19">
+                            <p> Категорий:
+                                {% for cat in course.categories.all %}
+                                <a href="{{ cat.get_absolute_url }}">{{ cat.name }}</a>
+                                {% if not forloop.last %},
+                                {% endif %}
+                                {% endfor %}</p>
+                        </div>
+                        <div class="teacher-courses-list-card-title">
+                            <img src="/static/images/price-logo.jpg" alt="Нет изображения" width="26" height="25">
+                            <p>Цена: {% if course.price > 0 %}{{ course.price }} сум
+                                {% else %}Бесплатно
+                                {% endif %}</p>
+                        </div>
+                        <div class="teacher-courses-list-actions">
+                            <a href="{% url 'onlinecourse:course_detail' course.slug %}"
+                               class="teacher-courses-open-btn">Открыть</a>
+                            {% if request.user == course.author %}
+                            <div class="teacher-courses-list-actions-item">
+                                <a href="{% url 'onlinecourse:course_update' course.slug %}"
+                                   title="Редактировать">✏️</a>
+                                <form action="{% url 'onlinecourse:course_delete' course.slug %}"
+                                      method="post" style="display:inline;"
+                                      onsubmit="return confirm('Удалить курс «{{ course.course_name }}»?');">
+                                    {% csrf_token %}
+                                    <button class="teacher-courses-remove-btn" type="submit"></button>
+                                </form>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </main>
+            {% else %}
+            <p>У вас пока нет курсов. <a href="{% url 'onlinecourse:course_create' %}">Создайте первый</a>.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'javascript/course_search.js' %}" defer></script>
+{% endblock %}

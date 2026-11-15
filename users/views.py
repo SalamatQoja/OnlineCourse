@@ -12,7 +12,9 @@ from django.contrib import messages
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView
 
+from onlinecourse.models import Category, Course
 from .decorators import role_required
+from .mixins import RoleTemplateMixin
 from .models import EmailVerification, User
 from .forms import EmailVerificationForm, CodeVerificationForm, ProfileUserForm, LoginFormUsers, RegisterFormUsers, \
     PasswordChangeForm, AdminSetPasswordForm
@@ -28,10 +30,12 @@ class LoginUser(LoginView):
         return reverse_lazy('users:post_login_redirect')
 
 
-class ProfilUser(LoginRequiredMixin, UpdateView):
+class ProfilUser(LoginRequiredMixin, RoleTemplateMixin, UpdateView):
     model = get_user_model()
     form_class = ProfileUserForm
-    template_name = 'users/profile.html'
+    page = 'profile'  # -> onlinecourse/<роль>/profile.html
+    fallback_template = 'users/profile.html'  # запасной, пока файлы ролей не созданы
+    # template_name = 'users/profile.html'
     extra_context = {'title': 'Профиль пользовителя',
                      'default_image': settings.DEFAULT_USER_IMAGE}
 
@@ -105,24 +109,49 @@ class RegisterUser(CreateView):
         return response
 
 
-class UserPasswordChange(PasswordChangeView):
+class UserPasswordChange(RoleTemplateMixin, PasswordChangeView):
     form_class = PasswordChangeForm
+    page = 'password_change_form'
+    fallback_template = 'users/password_change_form.html'
     success_url = reverse_lazy('users:password_change_done')
-    template_name = 'users/password_change_form.html'
+    extra_context = {'title': 'Смена пароля'}
 
 
 @login_required
 def post_login_redirect(request):
-    role = request.user.role
+    role = getattr(request.user, 'role', None)
 
     if role == User.Roles.ADMIN:
-        return redirect('users:admin_sidebar')
-    elif role == User.Roles.STUDENT:
-        return redirect('users:student_sidebar')
-    elif role == User.Roles.TEACHER:
-        return redirect('users:teacher_sidebar')
-    else:
-        return redirect('users:login')
+        return redirect('users:admin_dashboard')
+    if role == User.Roles.STUDENT:
+        return redirect('users:student_dashboard')
+    if role == User.Roles.TEACHER:
+        return redirect('users:teacher_dashboard')
+
+    messages.error(request, "Неизвестная роль пользователя")
+    return redirect('onlinecourse:home')
+
+
+# @login_required
+# def post_login_redirect(request):
+#     role = request.user.role
+#
+#     if role == User.Roles.ADMIN:
+#         return redirect('users:admin_dashboard')  # или 'admin:index'
+#     elif role == User.Roles.STUDENT:
+#         return redirect('users:student_dashboard')  # ученик → каталог
+#     elif role == User.Roles.TEACHER:
+#         return redirect('users:teacher_dashboard')  # учитель → мои курсы
+#     else:
+#         return redirect('users:login')
+# if role == User.Roles.ADMIN:
+#     return redirect('users:admin_sidebar')
+# elif role == User.Roles.STUDENT:
+#     return redirect('users:student_sidebar')
+# elif role == User.Roles.TEACHER:
+#     return redirect('users:teacher_sidebar')
+# else:
+#     return redirect('users:login')
 
 
 @login_required
@@ -135,6 +164,31 @@ def user_list(request):
     return render(request, 'users/user_list.html', {
         'page_object': page_object,
         'roles': User.Roles.choices,
+    })
+
+
+@login_required
+def author_list(request):
+    authors = (
+        User.objects
+        .filter(role=User.Roles.TEACHER)
+        .order_by('last_name', 'first_name')
+    )
+    paginator = Paginator(authors, 10)
+    page_number = request.GET.get('page')
+    page_object = paginator.get_page(page_number)
+    return render(request, 'users/author_list.html', {
+        'page_object': page_object,
+    })
+
+
+@login_required
+def author_detail(request, pk):
+    author = get_object_or_404(User, pk=pk, role=User.Roles.TEACHER)
+    courses = author.courses.filter(status=Course.Status.PUBLISHED)
+    return render(request, 'users/author_detail.html', {
+        'author': author,
+        'courses': courses,
     })
 
 
@@ -165,21 +219,32 @@ def change_user_role(request, user_id):
 
 
 @login_required
-@role_required(User.Roles.ADMIN)
-def admin_sidebar(request):
-    return render(request, 'users/admin_sidebar.html')
+@role_required(User.Roles.TEACHER, User.Roles.ADMIN)
+def teacher_dashboard(request):
+    courses = (
+        Course.objects.filter(author=request.user)
+        .prefetch_related('modules__lessons')
+        .order_by('-created')
+
+    )
+    return render(request, 'onlinecourse/teacher/layout.html', {  # ← дочерний
+        'courses': courses,
+    })
 
 
 @login_required
-@role_required(User.Roles.TEACHER, User.Roles.ADMIN)  # админ тоже может видеть
-def teacher_sidebar(request):
-    return render(request, 'users/teacher_sidebar.html')
+@role_required(User.Roles.ADMIN)
+def admin_dashboard(request):
+    return render(request, 'users/admin_dashboard.html', {  # ← дочерний
+        'user_count': User.objects.count(),
+        'course_count': Course.objects.count(),
+    })
 
 
 @login_required
 @role_required(User.Roles.STUDENT)
-def student_sidebar(request):
-    return render(request, 'users/student_sidebar.html')
+def student_dashboard(request):
+    return render(request, 'onlinecourse/student/layout.html', {})
 
 
 @login_required

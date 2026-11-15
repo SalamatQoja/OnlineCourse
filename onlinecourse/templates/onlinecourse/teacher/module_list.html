@@ -1,0 +1,79 @@
+{% extends "onlinecourse/teacher/layout.html" %}
+
+{% load static %}
+{% block teacher_content %}
+<div class="module-list-page">
+    <div class="module-list-container">
+        <main class="module-list-main-inner">
+            <header class="module-list-title">
+                <img src="{% static 'images/module-logo.jpg' %}" width="60" height="45" alt="Модули">
+                <h2>{{ title|default:"Модули моих курсов" }}</h2>
+            </header>
+
+            <div class="module-list-card-row">
+                {% for course in courses %}
+                <section class="course-card">
+                    <div class="course-card__head">
+                        <h3 class="course-card__title">
+                            <a href="{{ course.get_absolute_url }}">{{ course.course_name }}</a>
+                            <small>({{ course.modules.count }} модулей)</small>
+                        </h3>
+
+                        <button type="button"
+                                class="toggle-btn"
+                                aria-expanded="false"
+                                aria-controls="modules-{{ course.pk }}"
+                                data-show="Показать модули"
+                                data-hide="Скрыть модули">
+                            <span class="toggle-btn__text">Показать модули</span>
+                            <span class="toggle-btn__arrow">▾</span>
+                        </button>
+                    </div>
+
+                    <div class="course-card__body" id="modules-{{ course.pk }}" hidden>
+                        {% if request.user == course.author %}
+                        <a href="{% url 'onlinecourse:module_create' course.slug %}"
+                           class="module-list-card-add">+ Добавить модуль</a>
+                        {% endif %}
+
+                        <div class="module-grid">
+                            {% for module in course.modules.all %}
+                            <article class="module-card">
+                                <span class="module-card__order">{{ module.order }}</span>
+                                <h4 class="module-card__name">{{ module.name }}</h4>
+                                <div class="module-card__actions">
+                                    <a href="{% url 'onlinecourse:module_detail' module.pk %}" class="module-card-open">Открыть</a>
+
+                                    {% if request.user == course.author %}
+                                    <a href="{% url 'onlinecourse:module_update' module.pk %}"
+                                       title="Редактировать">✏️</a>
+
+                                    <form action="{% url 'onlinecourse:module_delete' module.pk %}"
+                                          method="post"
+                                          onsubmit="return confirm('Удалить модуль «{{ module.name|escapejs }}»?');">
+                                        {% csrf_token %}
+                                        <button class="teacher-courses-remove-btn"
+                                                type="submit" title="Удалить">🗑
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </article>
+                            {% empty %}
+                            <p class="module-empty">В этом курсе пока нет модулей.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </section>
+                {% empty %}
+                <div class="project-list-not-report">
+                    <img src="{% static 'images/not report2.jpg' %}" width="50" height="43" alt="Модули">
+                    <p>У вас пока нет курсов.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </main>
+    </div>
+</div>
+<script src="{% static 'javascript/module_list.js' %}" defer></script>
+{% endblock %}

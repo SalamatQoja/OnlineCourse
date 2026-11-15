@@ -1,0 +1,40 @@
+{% extends "onlinecourse/teacher/layout.html" %}
+
+{% load static %}
+{% block teacher_content %}
+<div class="course-form-page">
+    <main class="course-form-container">
+        <div class="course-form-title">
+            <img src="/static/images/add-logo1.jpg" width="60" height="45">
+            <h2 style="color: #4e4848">{{ title }}</h2>
+        </div>
+        <form method="post" enctype="multipart/form-data" class="course-form-inner">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="form-error">{{ form.non_field_errors.0 }}</div>
+            {% endif %}
+
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
+                {{ field }}
+                {% if field.errors %}
+                <span class="form-error">{{ field.errors.0 }}</span>
+                {% endif %}
+                {% if field.help_text %}
+                <small>{{ field.help_text }}</small>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div class="course-form-actions">
+                <button type="submit" class="course-form-add-btn">
+                    {% if is_edit %}Сохранить{% else %}+ Создать курс{% endif %}
+                </button>
+                <a href="{% url 'onlinecourse:course_list' %}" class="btn-remove">Отмена</a>
+            </div>
+        </form>
+    </main>
+</div>
+{% endblock %}

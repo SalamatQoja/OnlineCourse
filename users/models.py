@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 import random
+
+from django.urls import reverse
 from django.utils import timezone
 from datetime import timedelta
 
@@ -20,7 +22,7 @@ class User(AbstractUser):
     photo = models.ImageField(upload_to='users/%Y/%m/%d', null=True, blank=True, verbose_name='Фотография')
     gender = models.CharField(max_length=10, choices=Gender.choices, blank=True, null=True, verbose_name='Пол')
     bio = models.TextField(blank=True, verbose_name='О себе')
-    passport = models.CharField(max_length=20,blank=True, verbose_name='Паспорт')
+    passport = models.CharField(max_length=20, blank=True, verbose_name='Паспорт')
     birth_date = models.DateField(blank=True, null=True, verbose_name='Дата рождения')
     email = models.EmailField(unique=True, verbose_name='E-mail')  # важно для регистрации по email
     phone_number = models.CharField(max_length=50, blank=True, verbose_name='Телефон номер')

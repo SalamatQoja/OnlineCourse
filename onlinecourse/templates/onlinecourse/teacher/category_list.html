@@ -1,0 +1,81 @@
+{% extends "onlinecourse/teacher/layout.html" %}
+
+{% load static %}
+{% block teacher_content %}
+<div class="category-list-page">
+    <div class="categories-list-container">
+        <div class="categories-list-inform">
+            <header class="category-list-title">
+                <img src="{% static 'images/category-logo.png' %}" width="20" height="20" alt="">
+                <h2 style="color: #4e4848">{{ title|default:"Категории курсов" }}</h2>
+            </header>
+
+            <main class="category-list-card-inner">
+                {% for category in categories %}
+                <div class="category-list-card">
+                    <div class="categories-list-card-container">
+                        {% if category.image %}
+                        <img src="{{ category.image.url }}" alt="{{ category.name }}">
+                        {% else %}
+                        <img src="{% static 'images/published.png' %}" alt="Нет изображения">
+                        {% endif %}
+
+                        <div class="categories-list-card-title">
+                            <img src="{% static 'images/write-logo3.png' %}" width="35" height="27" alt="">
+                            <h2 style="color: darkgreen">{{ category.name }}</h2>
+                        </div>
+
+                        <div class="categories-list-card-item">
+                            <img src="{% static 'images/course-logo.jpg' %}" width="19" height="19" alt="">
+                            <span style="color: #4e4848">Курсов:
+                                <span style="color: green">{{ category.courses_count }}</span>
+                            </span>
+                        </div>
+
+                        <div class="categories-list-card-btn">
+                            <a href="{{ category.get_absolute_url }}" class="categories-list-card-open">Открыть</a>
+                            <a href="{% url 'onlinecourse:category_update' category.slug %}"
+                               title="Редактировать">✏️</a>
+                            <form action="{% url 'onlinecourse:category_delete' category.slug %}"
+                                  method="post" style="display:inline;"
+                                  onsubmit="return confirm('Удалить категорию «{{ category.name|escapejs }}»?');">
+                                {% csrf_token %}
+                                <button class="teacher-courses-remove-btn" type="submit"></button>
+                            </form>
+
+                            {# у Category нет поля author, поэтому правка и удаление — только для администратора #}
+                            {% if role == 'admin' %}
+                            <a href="{% url 'onlinecourse:category_update' category.slug %}"
+                               title="Редактировать">✏️</a>
+                            <form action="{% url 'onlinecourse:category_delete' category.slug %}"
+                                  method="post" style="display:inline;"
+                                  onsubmit="return confirm('Удалить категорию «{{ category.name|escapejs }}»?');">
+                                {% csrf_token %}
+                                <button class="teacher-courses-remove-btn" type="submit"></button>
+                            </form>
+                            {% endif %}
+                        </div>
+
+                        {% if category.children.all %}
+                        <ul class="subcategories">
+                            {% for child in category.children.all %}
+                            <li>
+                                <a href="{{ child.get_absolute_url }}">{{ child.name }}</a>
+                                <span class="course-count">({{ child.cc }})</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="project-list-not-report">
+                    <img src="{% static 'images/not report2.jpg' %}" width="50" height="43" alt="Модули">
+                    <p>Категории не нацйден.</p>
+                </div>
+                {% endfor %}
+            </main>
+        </div>
+    </div>
+</div>
+{% endblock %}
