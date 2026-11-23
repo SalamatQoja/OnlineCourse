@@ -1,0 +1,25 @@
+{% extends "onlinecourse/teacher/layout.html" %}
+
+{% load static %}
+{% block teacher_content %}
+<div class="enrollment-detail-page">
+    <main class="enrollment-detail-container">
+        <div class="lesson-detail-title">
+            <img src="/static/images/book-logo1.png" width="25" height="20">
+            <h2 style="color: #4e4848">Запись на <strong style="color: #0b7a4b">«{{ enrollment.course.course_name }}»</strong></h2>
+        </div>
+        <hr style="margin-top: -10px">
+        <p><strong>Студент:</strong> {{ enrollment.student.username }}</p>
+        <p><strong>Курс:</strong>
+            <a href="{{ enrollment.course.get_absolute_url }}">{{ enrollment.course.course_name }}</a>
+        </p>
+        <p><strong>Автор:</strong>
+            {{ enrollment.course.author.get_full_name|default:enrollment.course.author.username }}
+        </p>
+        <p><strong>Статус:</strong> {{ enrollment.get_status_display }}</p>
+        <p><strong>Источник:</strong> {{ enrollment.get_source_display }}</p>
+        <p><strong>Дата записи:</strong> {{ enrollment.created|date:"d.m.Y H:i" }}</p>
+
+    </main>
+</div>
+{% endblock %}

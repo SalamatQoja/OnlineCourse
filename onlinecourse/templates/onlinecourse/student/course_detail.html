@@ -59,6 +59,17 @@
                 </div>
                 <p style="color: #515353">{{ course.description }}</p>
             </div>
+            {# в course_detail.html, если студент записан #}
+            {% if request.user.role == 'student' %}
+            <div class="course-progress" style="background:#f4f4f4;padding:10px;border-radius:8px;">
+                <strong>Прогресс курса:</strong>
+                <div style="background:#ddd;height:20px;border-radius:10px;overflow:hidden;">
+                    <div style="background:#4caf50;height:100%;width:{{ course_percent }}%;">
+                        {{ course_percent }}%
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         </div>
 
         {% if similar_courses %}

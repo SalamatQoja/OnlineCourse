@@ -1,0 +1,56 @@
+{% extends "onlinecourse/teacher/layout.html" %}
+
+{% load static %}
+{% block teacher_content %}
+<div class="enrollment-list-page">
+    <main class="enrollment-list-container">
+        <header class="module-list-title">
+            <img src="{% static 'images/module-logo.jpg' %}" width="40" height="35" alt="Модули">
+            <h2>{{ title }}</h2>
+
+        </header>
+        <p>
+            Всего записавшихся:
+            <strong style="color: #aa0000">{{ enrollments|length }}</strong>
+        </p>
+
+        <table cellpadding="10" style="width: 100%">
+            <thead>
+            <tr style="background:#f4f4f4;">
+                <td>№</td>
+                <td>Студент</td>
+                <td>Статус</td>
+                <td>Источник</td>
+                <td>Дата записи</td>
+                <td>Действия</td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for enrollment in enrollments %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>
+                    {{ enrollment.student.get_full_name|default:enrollment.student.username }}
+                </td>
+                <td>{{ enrollment.get_status_display }}</td>
+                <td>{{ enrollment.get_source_display }}</td>
+                <td>{{ enrollment.created|date:"d.m.Y H:i" }}</td>
+                <td>
+                    <a href="{% url 'onlinecourse:enrollment_detail' enrollment.pk %}" class="teacher-courses-open-btn">
+                        Открыть
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" style="color:#999;">
+                    На этот курс пока никто не записался
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </main>
+</div>
+
+{% endblock %}

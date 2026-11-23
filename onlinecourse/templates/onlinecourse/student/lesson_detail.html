@@ -1,31 +1,55 @@
 {% extends "onlinecourse/student/layout.html" %}
 {% load static %}
-
+{% block title %}{{ lesson.name }}{% endblock %}
 {% block student_content %}
 <div class="lesson-detail-page">
     <div class="lesson-detail-container">
         <main class="lesson-detail-inner">
-            <article class="lesson-detail-title-row">
+            <article class="student-lesson-detail-title-row">
                 <div class="lesson-detail-title">
                     <img src="/static/images/book-logo1.png" width="25" height="20">
                     <h2 style="color: #595555">Контент уроке: <span
                             style="color: green">{{ content.lesson.name }}</span></h2>
                 </div>
                 <div class="lesson-detail-actions">
-                    {% if is_owner %}
-                    <hr>
-                    <a href="{% url 'onlinecourse:lesson_content_edit' lesson.pk %}"
-                       class="btn btn-primary btn-sm">
-                        {% if content %}<span style="color: green">✏️Редактировать</span> {% else %} <span
-                            class="lesson-detail-content-add">+ Добавить контент</span>{% endif %}
-                    </a>
-                    {% if content %}
-                    <form action="{% url 'onlinecourse:lesson_content_delete' lesson.pk %}"
-                          method="post" style="display:inline;"
-                          onsubmit="return confirm('Удалить контент уроке «{{ content.lesson.name }}»?');">
-                        {% csrf_token %}
-                        <button class="teacher-courses-remove-btn" type="submit"></button>
-                    </form>
+                    {% if is_enrolled and not is_owner %}
+                    <div id="progress-panel"
+                         data-lesson-id="{{ lesson.pk }}"
+                         data-start-url="{% url 'onlinecourse:start_lesson' lesson.pk %}"
+                         data-update-url="{% url 'onlinecourse:update_progress' lesson.pk %}"
+                         style="background:#f8f9fa;padding:12px;margin-top: 20px;margin-left: 30px">
+                        <h3 style="color: #aa0000">Прогресс</h3>
+                        <p>
+                            Статус:
+                            <strong id="progress-status">
+                                {{ progress.get_status_display|default:"не начат" }}
+                            </strong>
+                        </p>
+                        <p>
+                            Начало просмотра:
+                            <span id="started-at">{% if progress.started_at %}{{ progress.started_at|date:"d.m.Y H:i" }}{% else %}—{% endif %}</span>
+                        </p>
+                        <p>
+                            Позиция:
+                            <span id="position">{{ progress.position_seconds|default:0 }}</span> сек
+                        </p>
+                        <p>
+                            Всего просмотрено:
+                            <span id="watched">{{ progress.watched_seconds|default:0 }}</span> сек
+                            (<span id="watched-min">{{ progress.watched_seconds|default:0|floatformat:0 }}</span> сек)
+                        </p>
+
+                        {% if progress and progress.status != 'completed' %}
+                        <form method="post" action="{% url 'onlinecourse:complete_lesson' lesson.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="lp-btn lp-btn--add">✓ Завершить урок</button>
+                        </form>
+                        {% elif progress and progress.status == 'completed' %}
+                        <p style="color:green;">
+                            ✓ Урок завершён {{ progress.completed_at|date:"d.m.Y H:i" }}
+                        </p>
+                        {% endif %}
+                    </div>
                     {% endif %}
                 </div>
             </article>
@@ -68,8 +92,10 @@
                     {% endif %}
                 </div>
             </div>
-            {% endif %}
+
         </main>
     </div>
 </div>
+
+<script src="{% static 'javascript/lesson_detail.js' %}" defer></script>
 {% endblock %}

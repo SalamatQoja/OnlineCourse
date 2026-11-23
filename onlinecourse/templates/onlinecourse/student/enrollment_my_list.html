@@ -1,0 +1,63 @@
+{% extends "onlinecourse/student/layout.html" %}
+{% load static %}
+
+{% block student_content %}
+
+<div class="my_enrollment-page">
+    <main class="my_enrollment-container">
+        <div class="teacher-courses-list-title">
+            <img src="/static/images/list2.png" width="30" height="20">
+            <h2 style="color: #5c5a5a">Мой курсы</h2>
+        </div>
+        <hr style="margin-top: -10px">
+        <table cellpadding="10" style="width: 100%">
+            <tr>
+                <th>Курс</th>
+                <th>Автор</th>
+                <th>Статус</th>
+                <th>Источник</th>
+                <th>Дата</th>
+                <th>Действия</th>
+            </tr>
+            {% for e in enrollments %}
+            <tr>
+                <td>
+                    {{ e.course.course_name }}
+                </td>
+                <td>{{ e.course.author.get_full_name|default:e.course.author.username }}</td>
+                <td>
+                    {% with status=e.get_status %}
+                    {% if status == 'active' %}
+                    <span class="userslist-badge-active">
+                <img src="{% static 'images/active-status.png' %}"
+                     alt="Онлайн" width="30" height="30" style="margin-left: 10px"></span>
+                    {% elif status == 'completed' %}
+                    <span class="userslist-badge-offline">
+                   <img src="{% static 'images/offline.png' %}" width="30" height="30" style="margin-left: 10px"></span>
+                    {% elif status == 'cancelled' %}
+                    <span class="userslist-badge-offline">
+                   <img src="{% static 'images/offline.png' %}" width="30" height="30" style="margin-left: 10px"></span>
+                    {% else %}
+
+                    {% endif %}
+                    {% endwith %}
+                    {{ e.get_status_display }}
+                </td>
+                <td>{{ e.get_source_display }}</td>
+                <td>{{ e.created|date:"d.m.Y" }}</td>
+                <td>
+                    <a href="{{ e.course.get_absolute_url }}"  class="teacher-courses-open-btn">Отрыть</a>
+
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">Вы ещё не записаны ни на один курс</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+    </main>
+</div>
+
+{% endblock %}

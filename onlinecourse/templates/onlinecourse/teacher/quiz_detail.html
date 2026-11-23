@@ -1,0 +1,77 @@
+{% extends "onlinecourse/teacher/layout.html" %}
+{% load static %}
+
+{% block teacher_content %}
+<div class="quiz-detail-page">
+    <main class="quiz-detail-container">
+        <nav style="font-size:14px;color:#666;margin-bottom:15px;">
+            <a href="{{ lesson.module.course.get_absolute_url }}">{{ lesson.module.course.course_name }}</a> ›
+            <a href="{% url 'onlinecourse:module_detail' lesson.module.pk %}">{{ lesson.module.name }}</a> ›
+            <a href="{% url 'onlinecourse:lesson_detail' lesson.pk %}">{{ lesson.name }}</a> ›
+            <strong>Квиз</strong>
+        </nav>
+        <h2 style="color: #4e4848">Квиз: {{ lesson.name }}</h2>
+        <div class="question-detail-inform">
+            <p><strong>Описание:</strong> {{ quiz.description|default:"—"|linebreaksbr }}</p>
+            <p><strong>Проходной балл:</strong> {{ quiz.pass_score }}%</p>
+            <p>
+                <strong>Попытки:</strong>
+                {% if quiz.max_attempts %} {{ quiz.max_attempts }}
+                {% else %} без ограничений {% endif %}
+            </p>
+            <p>
+                <strong>Лимит времени:</strong>
+                {% if quiz.time_limit_minutes %} {{ quiz.time_limit_minutes }} мин
+                {% else %} без ограничений {% endif %}
+            </p>
+            <p><strong>Вопросов:</strong> {{ quantity_quiz }}</p>
+            <p><strong>Максимум баллов:</strong> {{ total_points|default:0 }}</p>
+        </div>
+        <h2 style="color: #4e4848">
+            <img src="/static/images/status-logo.jpg" width="30" height="26" style="border-radius: 17px">
+            Вопросы</h2>
+
+        {% for question in quiz.questions.all %}
+        <div class="question-block"
+             style="border:1px solid #ddd;padding:12px;margin-bottom:15px;border-radius:6px;">
+            <h3>
+                {{ forloop.counter }}. <strong style="color: green">{{ question.text }}</strong>
+                <small style="color:#666;">
+                    ({{ question.get_type_display }}, <strong style="color: #1c1cbd">{{question.points }}</strong>
+                    балл{{ question.points|pluralize:"а,ов" }})
+                </small>
+            </h3>
+
+            {% if question.explanation %}
+            <p style="color:#888;"><em>Пояснение: {{ question.explanation }}</em></p>
+            {% endif %}
+
+            {% if question.type == 'text' %}
+            <p style="color:#888;"><em>Свободный ответ (без вариантов)</em></p>
+            {% else %}
+            {% for option in question.options.all %}
+            <div>
+                {% if option.is_correct %}✅{% else %}⬜{% endif %}
+                {{ option.text }}
+            </div>
+            {% empty %}
+            <div style="color:#c00;">
+                <img src="/static/images/not report2.jpg" width="40" height="36" style="border-radius: 17px">
+                Нет вариантов ответа!
+            </div>
+            {% endfor %}
+            {% endif %}
+
+        </div>
+        {% empty %}
+        <div style="color:#c00;">
+            <img src="/static/images/not report2.jpg" width="40" height="36" style="border-radius: 17px">
+            Вопросов пока нет
+        </div>
+        {% endfor %}
+
+        <hr>
+    </main>
+
+</div>
+{% endblock %}

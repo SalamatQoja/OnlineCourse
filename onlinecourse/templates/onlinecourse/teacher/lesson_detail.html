@@ -16,8 +16,12 @@
                     <hr>
                     <a href="{% url 'onlinecourse:lesson_content_edit' lesson.pk %}"
                        class="btn btn-primary btn-sm">
-                        {% if content %}<span style="color: green">✏️Редактировать</span> {% else %} <span
-                            class="lesson-detail-content-add">+ Добавить контент</span>{% endif %}
+                        {% if content %}<span style="color: green">✏️Редактировать</span>
+                        {% else %} <span
+                            class="lesson-detail-content-add">+ Добавить контент</span>
+                        {% endif %}
+
+
                     </a>
                     {% if content %}
                     <form action="{% url 'onlinecourse:lesson_content_delete' lesson.pk %}"
@@ -27,8 +31,23 @@
                         <button class="teacher-courses-remove-btn" type="submit"></button>
                     </form>
                     {% endif %}
+
+                    {% for lesson in module.lessons.all %}
+                    {% if lesson.type == 'quiz' %}
+                    <a href="{% url 'onlinecourse:quiz_question' lesson_pk=lesson.pk %}">+ Вопрос</a>
+
+                    {% endif %}
+                    {% endfor %}
+                    {% if is_owner and lesson.type == 'quiz' %}
+
+                    <a href="{% url 'onlinecourse:quiz_detail' lesson_pk=lesson.pk %}"
+                       class="quiz-list-btn-secondary">⚙️ Управление квизом</a>
+                    <a href="{% url 'onlinecourse:quiz_question' lesson_pk=lesson.pk %}"
+                       class="lesson_create-save">+ Добавить вопрос</a>
+                    {% endif %}
                 </div>
             </article>
+
             {% if content %}
             <div class="lesson-detail-content-row">
                 <div class="lesson-detail-content-item">

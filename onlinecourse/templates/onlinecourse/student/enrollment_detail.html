@@ -1,0 +1,17 @@
+{% extends "onlinecourse/student/layout.html" %}
+{% load static %}
+
+{% block student_content %}
+<h1>Запись на «{{ enrollment.course.course_name }}»</h1>
+
+<p><strong>Студент:</strong> {{ enrollment.student.username }}</p>
+<p><strong>Курс:</strong>
+    <a href="{{ enrollment.course.get_absolute_url }}">{{ enrollment.course.course_name }}</a>
+</p>
+<p><strong>Автор:</strong>
+    {{ enrollment.course.author.get_full_name|default:enrollment.course.author.username }}
+</p>
+<p><strong>Статус:</strong> {{ enrollment.get_status_display }}</p>
+<p><strong>Источник:</strong> {{ enrollment.get_source_display }}</p>
+<p><strong>Дата записи:</strong> {{ enrollment.created|date:"d.m.Y H:i" }}</p>
+{% endblock %}

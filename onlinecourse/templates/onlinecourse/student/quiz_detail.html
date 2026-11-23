@@ -1,0 +1,58 @@
+{% extends "onlinecourse/student/layout.html" %}
+{% load static %}
+
+{% block student_content %}
+
+<nav style="font-size:14px;color:#666;margin-bottom:15px;">
+    <a href="{{ lesson.module.course.get_absolute_url }}">{{ lesson.module.course.course_name }}</a> ›
+    <a href="{{ lesson.get_absolute_url }}">{{ lesson.name }}</a> ›
+    <strong>Тест</strong>
+</nav>
+
+<h1>{{ lesson.name }}</h1>
+
+<div style="background:#f8f9fa;padding:15px;border-radius:8px;margin-bottom:20px;">
+    <p><strong>Описание:</strong> {{ quiz.description|default:"—"|linebreaksbr }}</p>
+    <p><strong>Вопросов:</strong> {{ quantity_quiz }}</p>
+    <p><strong>Проходной балл:</strong> {{ quiz.pass_score }}%</p>
+    <p>
+        <strong>Попытки:</strong>
+        {% if quiz.max_attempts %}
+        {{ attempts_used }} / {{ quiz.max_attempts }}
+        (осталось {{ attempts_left }})
+        {% else %}
+        без ограничений (сделано {{ attempts_used }})
+        {% endif %}
+    </p>
+    <p>
+        <strong>Время:</strong>
+        {% if quiz.time_limit_minutes %} {{ quiz.time_limit_minutes }} мин
+        {% else %} без ограничений {% endif %}
+    </p>
+</div>
+
+{% if best_submission %}
+<div style="background:#e8f5e9;padding:12px;border-radius:8px;margin-bottom:20px;">
+    <strong>Ваш лучший результат:</strong>
+    {{ best_submission.score }} / {{ best_submission.max_score }}
+    ({{ best_submission.percent }}%)
+    {% if best_submission.passed %}
+    <span style="color:green;">✅ пройдено</span>
+    {% else %}
+    <span style="color:#c00;">❌ не пройдено</span>
+    {% endif %}
+</div>
+{% endif %}
+
+{% if can_attempt %}
+<form method="post" action="{% url 'onlinecourse:quiz_start' lesson.pk %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-primary">
+        {% if active_submission %}▶ Продолжить{% else %}▶ Начать тест{% endif %}
+    </button>
+</form>
+{% else %}
+<p style="color:#c00;">Попытки закончились.</p>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "onlinecourse/teacher/layout.html" %}
+{% load static %}
+
+{% block teacher_content %}
+<div class="question-page">
+    <main class="question-page-container">
+
+        <h2 style="color: #4e4848">{{ title }}</h2>
+        <p style="color:#666;">
+            <img src="/static/images/view-left-logo.png" alt="Нет изображения" width="26" height="25">Квиз: <strong
+                style="color: #1fb58f">{{ quiz.lesson.name }}</strong></p>
+
+        <form method="post" class="quiz-question-form">
+            {% csrf_token %}
+
+            <fieldset style="border:1px solid #ddd;padding:15px;border-radius:8px;margin-bottom:15px;">
+                <legend><strong>Вопрос</strong></legend>
+                {{ form.as_p }}
+            </fieldset>
+
+            {% if question and question.type != 'text' %}
+            <fieldset style="border:1px solid #ddd;padding:15px;border-radius:8px;margin-bottom:15px;">
+                <legend><strong>Варианты ответа</strong></legend>
+
+                {{ option_formset.management_form }}
+
+                {% for opt_form in option_formset %}
+                <div style="border-bottom:1px dashed #ccc;padding:8px 0;">
+                    {{ opt_form.as_p }}
+                </div>
+                {% endfor %}
+
+                <p style="color:#888;font-size:13px;">
+                    Отметьте <strong>is_correct</strong> у правильных вариантов.
+                    Для <em>single</em> — ровно один; для <em>multiple</em> — один или несколько.
+                </p>
+            </fieldset>
+            {% endif %}
+            <div style="margin-left: 20px">
+                <button type="submit" class="course-form-add-btn">💾 Сохранить</button>
+                <a href="{% url 'onlinecourse:quiz_detail' quiz.lesson.pk %}" class="btn-remove">Отмена</a>
+            </div>
+        </form>
+    </main>
+</div>
+
+{% endblock %}

@@ -1,6 +1,8 @@
 from decimal import Decimal
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.db.models import PositiveIntegerField, PositiveSmallIntegerField
 from django.urls import reverse
 
 from sitestudy import settings
@@ -151,29 +153,181 @@ class LessonContent(models.Model):
         return f"Контент: {self.lesson.name}"
 
 
-class Enrollment():
+class Enrollment(models.Model):
     class Status(models.TextChoices):
         ACTIVE = 'active', 'Актив'
         COMPLETED = 'completed', 'Выполнено'
-        CANCELLED = 'cancelled', 'Отменятся'
+        CANCELLED = 'cancelled', 'Отменено'
 
     class Source(models.TextChoices):
         PURCHASE = 'purchase', 'Покупка'
-        PROMO = 'promo', 'промокод'
-        FREE = 'free', 'бесплатно'
+        PROMO = 'promo', 'Промокод'
+        FREE = 'free', 'Бесплатно'
 
-    student = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, related_name='enrollments',
-                                verbose_name='Записыватся')
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='enrollments')
-    date = models.DateField(auto_now_add=True)
-    status = models.CharField(max_length=24, choices=Status.choices, default=Status.ACTIVE)
-    source = models.CharField(max_length=20, choices=Source.choices, default=Source.PURCHASE)
+    student = models.ForeignKey(
+        User, on_delete=models.CASCADE,
+        related_name='enrollments', verbose_name='Студент'
+    )
+    course = models.ForeignKey(
+        Course, on_delete=models.CASCADE,
+        related_name='enrollments', verbose_name='Курс'
+    )
+    created = models.DateTimeField(auto_now_add=True, verbose_name='Дата записи')
+    status = models.CharField(
+        max_length=24, choices=Status.choices,
+        default=Status.ACTIVE, verbose_name='Статус'
+    )
+    source = models.CharField(
+        max_length=20, choices=Source.choices,
+        default=Source.PURCHASE, verbose_name='Источник'
+    )
 
     class Meta:
-        ordering = ['-date']
-        verbose_name = 'Запись на урок'
-        verbose_name_plural = 'Запись на уроке'
+        ordering = ['-created']
+        verbose_name = 'Запись на курс'
+        verbose_name_plural = 'Записи на курсы'
+        unique_together = ('student', 'course')  # одна запись на пару
+
+    def __str__(self):
+        return f"{self.student.username} → {self.course.course_name}"
 
 
+class LessonProgress(models.Model):
+    class Status(models.TextChoices):
+        NOT_STARTED = 'not_started', 'Не начат'
+        IN_PROGRESS = 'in_progress', 'В процессе'
+        COMPLETED = 'completed', 'Завершён'
+
+    student = models.ForeignKey(
+        User, on_delete=models.CASCADE,
+        related_name='lesson_progress', verbose_name='Студент'
+    )
+    lesson = models.ForeignKey(
+        Lesson, on_delete=models.CASCADE,
+        related_name='lesson_progress', verbose_name='урок'
+    )
+    status = models.CharField(
+        max_length=24, choices=Status.choices,
+        default=Status.NOT_STARTED, verbose_name='Статус'
+    )
+    started_at = models.DateTimeField(
+        null=True, blank=True, verbose_name='Начало просмотра'
+    )
+    completed_at = models.DateTimeField(
+        null=True, blank=True, verbose_name='Дата завершения'
+    )
+
+    position_seconds = models.PositiveIntegerField(
+        default=0, verbose_name='Последняя позиция (сек)'
+    )
+    watched_seconds = models.PositiveIntegerField(
+        default=0, verbose_name='Всего просмотрено (сек)'
+    )
+    created = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
+
+    class Meta:
+        ordering = ['-created']
+        unique_together = ('student', 'lesson')  # одна запись на пару
+        verbose_name = 'Прогресс урока'
+        verbose_name_plural = 'Прогрессы уроков'
+
+    def __str__(self):
+        return f"{self.student.username} {self.lesson.name}"
+
+    def is_completed(self):
+        return self.status == self.Status.COMPLETED
+
+    @property
+    def watched_minutes(self):
+        return self.watched_seconds // 60
+
+    @property
+    def duration_seconds(self):
+        return self.lesson.duration * 60
+
+    @property
+    def progress_percent(self):
+        if not self.duration_seconds:
+            return 0
+        return min(100, int(self.position_seconds / self.duration_seconds * 100))
+
+    @property
+    def watched_hms(self):
+        s = self.watched_seconds or 0
+        h, m, sec = s // 3600, (s % 3600) // 60, s % 60
+        if h:
+            return f"{h} ч {m:02d} мин"
+        if m:
+            return f"{m} мин {sec:02d} сек"
+        return f"{sec} сек"
+
+    @property
+    def position_hms(self):
+        return self.watched_hms  # тот же формат, но для position
+
+    @property
+    def watch_percent(self):
+        if not self.duration_seconds:
+            return 0
+        return min(100, int(self.watched_seconds / self.duration_seconds * 100))
 
 
+TIME_GRACE_SECONDS = 15
+
+
+class Quiz(models.Model):
+    lesson = models.OneToOneField(Lesson, on_delete=models.CASCADE, related_name='quiz', verbose_name='Урок')
+    description = models.TextField(blank=True, verbose_name='Описание')
+    pass_score = models.PositiveSmallIntegerField(default=70, validators=[MaxValueValidator(100)],
+                                                  verbose_name='Проходной балл (%)')
+    max_attempts = models.PositiveSmallIntegerField(default=0, verbose_name='Максимум попыток (0 = без ограничений)')
+    time_limit_minutes = PositiveSmallIntegerField(default=0, verbose_name='Лимит времени (мин, 0 = без ограничений)')
+
+    class Meta:
+        verbose_name = 'Квиз'
+        verbose_name_plural = 'Квизы'
+
+    def __str__(self):
+        return f"Квиз: {self.lesson.name}"
+
+    @property
+    def total_points(self):
+        # sum по .all() использует prefetch_related('questions'), если он был сделан
+        return sum(q.points for q in self.questions.all())
+
+
+class Question(models.Model):
+    class Type(models.TextChoices):
+        SINGLE = 'single', 'Один правильный'
+        MULTIPLE = 'multiple', 'Несколько правильных'
+        TEXT = 'text', 'Текстовый ответ'
+
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='questions', verbose_name='Квиз')
+    text = models.TextField(verbose_name='Текст вопроса')
+    type = models.CharField(max_length=15, choices=Type.choices, default=Type.SINGLE, verbose_name='Тип')
+    points = models.PositiveSmallIntegerField(default=1, validators=[MinValueValidator(1)], verbose_name='Баллы')
+    order = models.PositiveSmallIntegerField(default=0, verbose_name='Порядок')
+    explanation = models.TextField(blank=True, verbose_name='Пояснение')
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return self.text[:60]
+
+
+class AnswerOption(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='options', verbose_name='Вопрос')
+    text = models.CharField(blank=False, max_length=255, verbose_name='Текст варианта')
+    is_correct = models.BooleanField(default=False, verbose_name='Правильный')
+    order = models.PositiveSmallIntegerField(default=0, verbose_name='Порядок')
+
+    class Meta:
+        ordering = ['order']
+        verbose_name = 'Вариант ответа'
+        verbose_name_plural = 'Варианты ответов'
+
+    def __str__(self):
+        return self.text
+
+# class QuizAttempt(models.Model):

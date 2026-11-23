@@ -1,0 +1,59 @@
+{% extends "onlinecourse/teacher/layout.html" %}
+{% load static %}
+
+{% block teacher_content %}
+<div class="quiz-list-page">
+    <main class="quiz-list-container">
+        <header class="quiz-list-title">
+            <img src="/static/images/my-quiz-list-logo.png" width="40" height="30">
+            <h2 style="color: #4e4848">Мои квизы</h2>
+        </header>
+
+
+        {% if quiz_lessons %}
+        <table cellpadding="10" style="width:100%">
+            <thead>
+            <tr style="background:#f4f4f4;">
+                <th>Курс</th>
+                <th>Модуль</th>
+                <th>Урок</th>
+                <th>Вопросов</th>
+                <th>Действия</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for lesson in quiz_lessons %}
+            <tr>
+                <td>{{ lesson.module.course.course_name }}</td>
+                <td>{{ lesson.module.name }}</td>
+                <td>{{ lesson.name }}</td>
+                <td style="color: #0b7a4b;font-size: 1.3rem;margin-left: 40px">
+                    {% if lesson.has_quiz %}
+                    {{ lesson.questions_count }}
+                    {% else %}
+                    <span style="color:#c00;">не создан</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'onlinecourse:lesson_detail' pk=lesson.pk %}"
+                       class="lesson_create-save">Открыть урок</a>
+                    <a href="{% url 'onlinecourse:quiz_question' lesson_pk=lesson.pk %}"
+                       class="lesson_create-secondary" style="color: green">
+                        {% if lesson.has_quiz %}+ Вопрос{% else %}+ Создать квиз{% endif %}
+                    </a>
+                    {% if lesson.has_quiz %}
+                    <a href="{% url 'onlinecourse:quiz_detail' lesson_pk=lesson.pk %}"
+                       class="quiz-list-btn-secondary">⚙️ Управление</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>У вас пока нет уроков с типом «Квиз». Создайте урок с типом «Квиз» в своём курсе.</p>
+        {% endif %}
+    </main>
+</div>
+
+{% endblock %}

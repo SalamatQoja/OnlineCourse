@@ -62,7 +62,14 @@
                             <p>Цена: {% if course.price > 0 %}{{ course.price }} сум
                                 {% else %}Бесплатно
                                 {% endif %}</p>
+
                         </div>
+
+                        {% if request.user == course.author or request.user.role == 'admin' %}
+                        <a href="{% url 'onlinecourse:course_enrollments' course.slug %}"
+                           class="student-enrollment-btn">Кто записался ({{ course.enrollments.count }})
+                        </a>
+                        {% endif %}
                         <div class="teacher-courses-list-actions">
                             <a href="{% url 'onlinecourse:course_detail' course.slug %}"
                                class="teacher-courses-open-btn">Открыть</a>

@@ -12,6 +12,7 @@
                     <a href="{% url 'onlinecourse:category_create' %}" class="teacher-page-a">Создать категорий</a>
                     <a href="{% url 'onlinecourse:module_list' %}" class="teacher-page-a">Модуль</a>
                     <a href="{% url 'onlinecourse:lesson_list' %}" class="teacher-page-a">Уроки</a>
+                    <a href="{% url 'onlinecourse:quiz_list' %}" class="teacher-page-a">Квизы</a>
                 </div>
 
                 <aside class="users-autenticate">
@@ -36,7 +37,7 @@
                 </aside>
             </header>
         </div>
-          <div class="student-page-background">
+        <div class="student-page-background">
             <div class="sidebar_search-row">
                 {% include "onlinecourse/includes/sidebar_search.html" %}
             </div>

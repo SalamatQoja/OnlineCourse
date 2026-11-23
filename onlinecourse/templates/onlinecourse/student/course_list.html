@@ -81,6 +81,13 @@
                                 </form>
                             </div>
                             {% endif %}
+                            {% if request.user.role == 'student' %}
+                            {% if not course.enrollments.all|length %}
+                            <a href="{% url 'onlinecourse:enrollment_create' course.slug %}"  class="student-enrollment-btn">
+                                Записаться
+                            </a>
+                            {% endif %}
+                            {% endif %}
                         </div>
                     </div>
                 </div>

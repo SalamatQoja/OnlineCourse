@@ -1,5 +1,5 @@
 from django import forms
-from .models import Course, Category, Module, Lesson, LessonContent
+from .models import Course, Category, Module, Lesson, LessonContent, Quiz, Question
 
 
 class CategoryForm(forms.ModelForm):
@@ -154,4 +154,43 @@ class LessonContentForm(forms.ModelForm):
             'video_url': 'Ссылка на видео',
             'text_body': 'Текст урока',
             'file': 'Вложение',
+        }
+
+
+class QuizForm(forms.ModelForm):
+    class Meta:
+        model = Quiz
+        fields = ('description', 'pass_score', 'max_attempts', 'time_limit_minutes')
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+            'pass_score': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 100}),
+            'max_attempts': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
+            'time_limit_minutes': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
+        }
+        labels = {
+            'description': 'Описание',
+            'pass_score': 'Проходной балл (%)',
+            'max_attempts': 'Максимум попыток (0 = без ограничений)',
+            'time_limit_minutes': 'Лимит времени (мин, 0 = без ограничений)',
+        }
+
+
+class QuestionForm(forms.ModelForm):
+    class Meta:
+
+        model = Question
+        fields = ('text', 'type', 'points', 'order', 'explanation')
+        widgets = {
+            'text': forms.Textarea(attrs={'rows': 3, 'class': 'form-control-question'}),
+            'type': forms.Select(attrs={'class': 'form-control-question-type'}),
+            'points': forms.NumberInput(attrs={'class': 'form-control-question-points', 'min': 1}),
+            'order': forms.NumberInput(attrs={'class': 'form-control-question-order', 'min': 0}),
+            'explanation': forms.Textarea(attrs={'rows': 2, 'class': 'form-control-question-explanation'}),
+        }
+        labels = {
+            'text': 'Текст вопроса',
+            'type': 'Тип',
+            'points': 'Баллы',
+            'order': 'Порядок',
+            'explanation': 'Пояснение',
         }
